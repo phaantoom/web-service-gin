@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+ <title>Welcome To Our Blog!</title>
+ <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container my-5">
+    <div class="row" style="justify-content: center;">
+        <div class="col-lg-8">
+            <label class="form-label">Post Title</label>
+            <input class="form-control" type="text" id="title" />
+        </div>
+    </div>
+    <div class="row mt-2" style="justify-content: center;">
+        <div class="col-lg-8">
+            <label class="form-label">Post Body</label>
+            <textarea class="form-control" id="body" rows="3"></textarea>
+        </div>
+    </div>
+    <div class="row mt-2" style="justify-content: end;">
+        <div class="col-lg-4">
+            <input class="btn btn-primary" type="submit" id="submitPost" onclick="createPost()"/>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row" style="justify-content: center;">
+        <div class="col-lg-8" id="allPosts">
+
+        </div>
+    </div>
+</div>
+
+    <script>
+
+    getPosts()
+
+function getPosts(){
+    Div = document.getElementById("allPosts")
+    Div.innerHTML = ''
+        fetch("http://localhost:8080/Post/getAllposts")
+        .then(response => response.json())
+        .then(postList => {
+        postList.forEach(post => {
+            Card = document.createElement("div")
+            Card.classList.add("card")
+            Card.classList.add("mb-3")
+            CardBody = document.createElement("div")
+            CardBody.classList.add("card-body")  
+            CardBody.innerHTML += "<h3 class='card-title my-2'>"+post.title+"</h3>";
+            CardBody.innerHTML += "<p class='card-text my-2'>"+post.body+"</p>";
+            CardBody.innerHTML += "<button class='btn btn-danger' onclick= deletePost("+post.id+")"+">Delete Post</button>";
+            CardBody.innerHTML += "<textarea class='form-control my-2' id=updatePost"+post.id+"  rows='3'></textarea>";
+            CardBody.innerHTML += "<button class='btn btn-secondary' onclick= updatePost("+post.id+")"+">Update Post</button>";
+            CardBody.innerHTML += "<input class='form-control my-2' id= commentPost"+post.id+">";
+            CardBody.innerHTML += "<button class='btn btn-primary me-3' onclick= createCommentPost("+post.id+")"+">Add Comment</button>";
+            //CardBody.innerHTML += "<button class='btn btn-outline-primary' type='button' OnClick = getCommentPost("+post.id+")>View Comments</button>";//
+            //CardBody.innerHTML += "<a class='btn btn-outline-primary' type='button' OnClick = getCommentPost("+post.id+")>View Comments</a>";
+            //CardBody.innerHTML += "<div class='my-2' id= CommentDiv"+post.id+"></div>";
+            DivComment = document.createElement("div");
+            DivComment.setAttribute("id","CommentDiv"+post.id);
+            DivComment.classList.add("my-2"); 
+            CardBody.appendChild(DivComment);
+            Card.appendChild(CardBody);
+            Div.appendChild(Card);
+            });
+
+            postList.forEach(post => {
+                getCommentPost(post.id);
+            })
+        })
+    }
+
+function createPost(){
+    fetch('http://localhost:8080/Post/Createpost', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Accept: "application/json"
+    },
+    body: JSON.stringify({
+        "body": document.getElementById('body').value,
+        "title": document.getElementById('title').value
+    })
+    })
+    .then(res => res.json())
+    .then((post) => {
+        getPosts()
+    })
+    }
+
+function deletePost(Id) {
+    fetch('http://localhost:8080/Post/DeletePost/'+Id, {
+        method: 'delete'
+    }).then(response =>
+        response.json())
+    .then(json => {
+        getPosts()
+        })
+    }
+
+function updatePost(Id) {
+    fetch('http://localhost:8080/Post/Updatepost/'+Id, {
+        method: 'put',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            "body": document.getElementById('updatePost'+Id).value
+        })
+    }).then(response =>
+        response.json())
+    .then(json => {
+        getPosts()
+        })
+    }
+
+function getCommentPost(Id) {
+    console.log(Id)
+    var Div = document.getElementById("CommentDiv"+Id)
+    Div.innerHTML = ''
+    console.log(Div)
+    fetch('http://localhost:8080/Comment/getComments/'+Id, {
+        method: 'get'
+    }).then(response =>
+        response.json())
+    .then(commentList => {
+        if(commentList != null){
+        commentList.forEach(comment => {
+            Div.innerHTML += "<hr/>"
+            Div.innerHTML +="<p class='my-2'>"+comment.Text+"</p>";
+            Div.innerHTML += "<input class='form-control my-2' id= updComment"+comment.id+">";
+            Div.innerHTML += "<button class='btn btn-secondary me-3' onclick= updateComment("+comment.id+","+comment.PostID+")"+">Update Comment</button>";
+            Div.innerHTML += "<button class='btn btn-danger' onclick= deleteComment("+comment.id+","+comment.PostID+")"+">Delete Comment</button>";
+
+        });
+        }
+        })
+    }
+
+    function updateComment(Id,Post){
+        console.log(Id)
+        console.log(Post)
+        fetch('http://localhost:8080/Comment/UpdateComment/'+Id, {
+        method: 'put',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: "application/json"
+        },
+        body: JSON.stringify({
+            "Text": document.getElementById('updComment'+Id).value
+        })
+    }).then(response =>
+        response.json())
+    .then(json => {
+        getCommentPost(Post)
+        })
+    }
+
+    function deleteComment(Id,Post){
+        fetch('http://localhost:8080/Comment/DeleteComment/'+Id, {
+        method: 'delete'
+    }).then(response =>
+        response.json())
+    .then(json => {
+        getCommentPost(Post)
+        })
+}
+    function createCommentPost(Id){
+        PostID = Id.toString()
+    fetch('http://localhost:8080/Comment/CreateComment', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        Accept: "application/json"
+    },
+    body: JSON.stringify({
+        "Text": document.getElementById('commentPost'+Id).value,
+        "PostID": PostID
+    })
+    })
+    .then(res => res.json())
+    .then((json) => {
+        console.log(json)
+        getCommentPost(Id)
+    })
+    }
+    </script>
+
+</body>
