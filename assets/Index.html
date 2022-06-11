@@ -94,7 +94,7 @@ function createPost(){
     }
 
 function deletePost(Id) {
-    fetch('Post/DeletePost/'+Id, {
+    fetch('/Post/DeletePost/'+Id, {
         method: 'delete'
     }).then(response =>
         response.json())
