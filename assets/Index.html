@@ -42,7 +42,7 @@
 function getPosts(){
     Div = document.getElementById("allPosts")
     Div.innerHTML = ''
-        fetch("http://localhost:8080/Post/getAllposts")
+        fetch("/Post/getAllposts")
         .then(response => response.json())
         .then(postList => {
         postList.forEach(post => {
@@ -76,7 +76,7 @@ function getPosts(){
     }
 
 function createPost(){
-    fetch('http://localhost:8080/Post/Createpost', {
+    fetch('/Post/Createpost', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ function createPost(){
     }
 
 function deletePost(Id) {
-    fetch('http://localhost:8080/Post/DeletePost/'+Id, {
+    fetch('Post/DeletePost/'+Id, {
         method: 'delete'
     }).then(response =>
         response.json())
@@ -104,7 +104,7 @@ function deletePost(Id) {
     }
 
 function updatePost(Id) {
-    fetch('http://localhost:8080/Post/Updatepost/'+Id, {
+    fetch('/Post/Updatepost/'+Id, {
         method: 'put',
         headers: {
             'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ function getCommentPost(Id) {
     var Div = document.getElementById("CommentDiv"+Id)
     Div.innerHTML = ''
     console.log(Div)
-    fetch('http://localhost:8080/Comment/getComments/'+Id, {
+    fetch('/Comment/getComments/'+Id, {
         method: 'get'
     }).then(response =>
         response.json())
@@ -146,7 +146,7 @@ function getCommentPost(Id) {
     function updateComment(Id,Post){
         console.log(Id)
         console.log(Post)
-        fetch('http://localhost:8080/Comment/UpdateComment/'+Id, {
+        fetch('/Comment/UpdateComment/'+Id, {
         method: 'put',
         headers: {
             'Content-Type': 'application/json',
@@ -163,7 +163,7 @@ function getCommentPost(Id) {
     }
 
     function deleteComment(Id,Post){
-        fetch('http://localhost:8080/Comment/DeleteComment/'+Id, {
+        fetch('/Comment/DeleteComment/'+Id, {
         method: 'delete'
     }).then(response =>
         response.json())
@@ -173,7 +173,7 @@ function getCommentPost(Id) {
 }
     function createCommentPost(Id){
         PostID = Id.toString()
-    fetch('http://localhost:8080/Comment/CreateComment', {
+    fetch('/Comment/CreateComment', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',

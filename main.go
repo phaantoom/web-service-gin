@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -155,6 +156,6 @@ func newRouter() *mux.Router {
 func main() {
 
 	r := newRouter()
-
-	http.ListenAndServe(":8080", r)
+	port := os.Getenv("PORT")
+	http.ListenAndServe(":"+port, r)
 }
